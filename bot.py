@@ -72,7 +72,7 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             name = p.get("name", "Product")
             price = p.get("retail_price", p.get("price", 0))
             stock = p.get("stock", 0)
-            stock_status = f"({stock} in stock)" if stock > 0 else "(Out of stock)"
+            stock_status = f"(🟢 {stock} in stock)" if stock > 0 else "(🔴 Out of stock)"
             btn_text = f"{name} - ${price:.2f} {stock_status}"
             keyboard.append([InlineKeyboardButton(btn_text, callback_data=f"prod_{svc_id}")])
 
@@ -97,10 +97,11 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         price = product.get("retail_price", product.get("price", 0))
         stock = product.get("stock", 0)
 
+        stock_icon = "🟢" if stock > 0 else "🔴"
         details_text = (
             f"📦 *Product:* `{name}`\n"
             f"💰 *Price:* `${price:.2f}`\n"
-            f"📊 *Stock Available:* `{stock}` units\n"
+            f"📊 *Stock Available:* {stock_icon} `{stock}` units\n"
             f"⚡ *Delivery:* Instant Digital Link/Key\n\n"
         )
 
@@ -108,7 +109,7 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if stock > 0:
             keyboard.append([InlineKeyboardButton("💳 Buy Now", callback_data=f"buy_{svc_id}")])
         else:
-            details_text += "⚠️ *Status:* Out of stock currently. Check back soon!"
+            details_text += "🔴 *Status:* Out of stock currently. Check back soon!"
 
         keyboard.append([InlineKeyboardButton("🔙 Back to Products", callback_data="menu_products")])
         await query.edit_message_text(details_text, parse_mode="Markdown", reply_markup=InlineKeyboardMarkup(keyboard))
