@@ -23,7 +23,9 @@ class AIVerseHubClient:
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
                 data = json.loads(resp.read().decode())
-                return data.get("data", {})
+                if "data" in data and isinstance(data["data"], dict):
+                    return data["data"]
+                return data
         except Exception as e:
             return {"error": str(e)}
 
@@ -34,7 +36,12 @@ class AIVerseHubClient:
         try:
             with urllib.request.urlopen(req, timeout=10) as resp:
                 res = json.loads(resp.read().decode())
-                services = res.get("data", {}).get("services", [])
+                if "services" in res:
+                    services = res["services"]
+                elif "data" in res and "services" in res["data"]:
+                    services = res["data"]["services"]
+                else:
+                    services = []
                 
                 # Apply profit markup calculation
                 for svc in services:
