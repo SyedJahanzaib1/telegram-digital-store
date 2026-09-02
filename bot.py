@@ -72,6 +72,9 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # 🛒 Buy Products Catalog
     elif data == "menu_products":
         products = client.get_products()
+        acc_info = client.get_account_info()
+        balance = float(acc_info.get("wallet_balance", 0.0))
+
         if not products:
             await query.edit_message_text(
                 "❌ *No products currently available.* Please check back later.",
@@ -80,7 +83,19 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        keyboard = []
+        text = (
+            f"💳 *Current Balance:* `${balance:.4f}`\n\n"
+            f"You can add balance using Crypto or Local Deposit to purchase products directly.\n\n"
+            f"🛍️ *Available products:*\n"
+        )
+
+        keyboard = [
+            [
+                InlineKeyboardButton("➕ Top Up (Add Funds)", callback_data="wallet_topup"),
+                InlineKeyboardButton("🎟️ Redeem Promo Code", callback_data="wallet_promo"),
+            ]
+        ]
+
         for p in products:
             svc_id = p.get("service_id")
             name = p.get("name", "Product")
@@ -93,7 +108,7 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard.append([InlineKeyboardButton("🔙 Back to Main Menu", callback_data="main_menu")])
 
         await query.edit_message_text(
-            "🛍️ *Select a Product to Purchase:*\n\nChoose an item below to view options and stock:",
+            text,
             parse_mode="Markdown",
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
